@@ -10,4 +10,5 @@ public class LadderController {
     public String test() {
         return "Testing";
     }
+
 }
