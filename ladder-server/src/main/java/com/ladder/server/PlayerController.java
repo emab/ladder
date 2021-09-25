@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("player")
+@RequestMapping("/player")
 public class PlayerController {
     private final PlayerRepository playerRepository;
 
@@ -14,17 +14,17 @@ public class PlayerController {
         this.playerRepository = playerRepository;
     }
 
-    @GetMapping("/")
+    @GetMapping
     public List<Player> getPlayers() {
         return playerRepository.findAll();
     }
 
-    @PostMapping("/")
+    @PostMapping
     public Player addPlayer(String username) {
         return playerRepository.save(new Player(username));
     }
 
-    @PutMapping("/")
+    @PutMapping
     public void updateScores(UUID winningPlayerId, UUID losingPlayerId) {
         // TODO score logic
     }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { playersArraySelector, setPlayersAction } from './store';
+import { fetchPlayersAction, playersArraySelector } from './store';
 
 export function Scoreboard() {
   const dispatch = useDispatch();
@@ -9,37 +9,7 @@ export function Scoreboard() {
   return (
     <div>
       <div>A scoreboard</div>
-      <button
-        type="button"
-        onClick={() =>
-          dispatch(
-            setPlayersAction([
-              {
-                id: '123',
-                score: 0,
-                username: 'test',
-              },
-              {
-                id: '125',
-                score: 0,
-                username: 'test',
-              },
-              {
-                id: '126',
-                score: 0,
-                username: 'test',
-              },
-              { id: '127', score: 0, username: 'test' },
-              {
-                id: '128',
-                score: 0,
-                username: 'test',
-              },
-              { id: '123', score: 0, username: 'test' },
-            ])
-          )
-        }
-      >
+      <button type="button" onClick={() => dispatch(fetchPlayersAction())}>
         Test
       </button>
       {Object.values(players).map((player) => (
