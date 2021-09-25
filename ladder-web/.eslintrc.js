@@ -18,10 +18,7 @@ module.exports = {
     createDefaultProgram: true,
     project: 'tsconfig.json',
   },
-  plugins: [
-    'react',
-    '@typescript-eslint',
-  ],
+  plugins: ['react', '@typescript-eslint'],
   rules: {
     'import/prefer-default-export': 'off',
     'import/no-cycle': 'off',

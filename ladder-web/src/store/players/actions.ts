@@ -1,7 +1,7 @@
 import { Player } from '../../types';
 
 export enum PlayersActionType {
-  SET_PLAYERS = 'SET_PLAYERS'
+  SET_PLAYERS = 'SET_PLAYERS',
 }
 
 export interface SetPlayersAction {
