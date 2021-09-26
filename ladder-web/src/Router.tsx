@@ -1,6 +1,6 @@
 import React, { ReactChild } from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
-import { EditUser } from './EditUser';
+import { EditPlayer } from './EditPlayer';
 import { League } from './League';
 import { PlayerList } from './PlayerList';
 
@@ -16,7 +16,7 @@ export function Router({ children }: IRouterProps) {
         <Route exact path="/">
           <League />
         </Route>
-        <Route path="/players/:userId" component={EditUser} />
+        <Route path="/players/:playerId" component={EditPlayer} />
         <Route path="/players">
           <PlayerList />
         </Route>

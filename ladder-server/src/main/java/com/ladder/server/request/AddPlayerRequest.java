@@ -1,4 +1,4 @@
-package com.ladder.server.requests;
+package com.ladder.server.request;
 
 import lombok.Data;
 

@@ -22,5 +22,6 @@ module.exports = {
   rules: {
     'import/prefer-default-export': 'off',
     'import/no-cycle': 'off',
+    '@typescript-eslint/no-unused-expressions': 'off',
   },
 };

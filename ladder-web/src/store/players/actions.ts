@@ -5,6 +5,9 @@ export enum PlayersActionType {
   ADD_PLAYER = 'ADD_PLAYER',
   FETCH_PLAYERS = 'FETCH_PLAYERS',
   SET_PLAYERS = 'SET_PLAYERS',
+  ADD_PLAYER_LEAGUE = 'ADD_PLAYER_LEAGUE',
+  REMOVE_PLAYER_LEAGUE = 'REMOVE_PLAYER_LEAGUE',
+  DELETE_PLAYER = 'DELETE_PLAYER'
 }
 
 export interface AddPlayerRequestAction {
@@ -12,9 +15,11 @@ export interface AddPlayerRequestAction {
   username: string;
 }
 
-export const addPlayerRequestAction = (username: string): AddPlayerRequestAction => ({
+export const addPlayerRequestAction = (
+  username: string
+): AddPlayerRequestAction => ({
   type: PlayersActionType.ADD_PLAYER_REQUEST,
-  username
+  username,
 });
 
 export interface AddPlayerAction {
@@ -24,7 +29,7 @@ export interface AddPlayerAction {
 
 export const addPlayerAction = (player: Player): AddPlayerAction => ({
   type: PlayersActionType.ADD_PLAYER,
-  player
+  player,
 });
 
 export interface FetchPlayersAction {
@@ -45,4 +50,51 @@ export const setPlayersAction = (players: Array<Player>): SetPlayersAction => ({
   players,
 });
 
-export type PlayersAction = SetPlayersAction | FetchPlayersAction | AddPlayerRequestAction | AddPlayerAction;
+export interface AddPlayerLeagueAction {
+  type: PlayersActionType.ADD_PLAYER_LEAGUE;
+  playerId: string;
+  leagueId: string;
+}
+
+export const addPlayerLeagueAction = (
+  playerId: string,
+  leagueId: string
+): AddPlayerLeagueAction => ({
+  type: PlayersActionType.ADD_PLAYER_LEAGUE,
+  playerId,
+  leagueId,
+});
+
+export interface RemovePlayerLeagueAction {
+  type: PlayersActionType.REMOVE_PLAYER_LEAGUE;
+  playerId: string;
+  leagueId: string;
+}
+
+export const removePlayerLeagueAction = (
+  playerId: string,
+  leagueId: string
+): RemovePlayerLeagueAction => ({
+  type: PlayersActionType.REMOVE_PLAYER_LEAGUE,
+  playerId,
+  leagueId,
+});
+
+export interface DeletePlayerAction {
+  type: PlayersActionType.DELETE_PLAYER
+  playerId: string;
+}
+
+export const deletePlayerAction = (playerId: string): DeletePlayerAction => ({
+  type: PlayersActionType.DELETE_PLAYER,
+  playerId
+})
+
+export type PlayersAction =
+  | SetPlayersAction
+  | FetchPlayersAction
+  | AddPlayerRequestAction
+  | AddPlayerAction
+  | AddPlayerLeagueAction
+  | RemovePlayerLeagueAction
+  | DeletePlayerAction;

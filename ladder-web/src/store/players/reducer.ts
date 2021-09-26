@@ -23,6 +23,39 @@ export const playersReducer = (
         ...state,
         players: { ...state.players, [action.player.id]: action.player },
       };
+    case PlayersActionType.ADD_PLAYER_LEAGUE:
+      return {
+        ...state,
+        players: {
+          ...state.players,
+          [action.playerId]: {
+            ...state.players[action.playerId],
+            leagues: [
+              ...state.players[action.playerId].leagues,
+              action.leagueId,
+            ],
+          },
+        },
+      };
+    case PlayersActionType.REMOVE_PLAYER_LEAGUE:
+      return {
+        ...state,
+        players: {
+          ...state.players,
+          [action.playerId]: {
+            ...state.players[action.playerId],
+            leagues: state.players[action.playerId].leagues.filter(
+              (league) => league !== action.leagueId
+            ),
+          },
+        },
+      };
+    case PlayersActionType.DELETE_PLAYER: {
+      const nextState = { ...state };
+      delete nextState.players[action.playerId];
+
+      return nextState;
+    }
     default:
       return state;
   }
