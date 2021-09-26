@@ -5,6 +5,17 @@ interface ILeaderboardProps {
   leaderboard: Map<String, LeaderboardEntry>;
 }
 
+const sortFn = (a: LeaderboardEntry, b: LeaderboardEntry): number => {
+  if (a.rank === null && b.rank !== null) {
+    return 1;
+  } if (a.rank !== null && b.rank === null) {
+    return -1;
+  } if (a.rank === null && b.rank === null) {
+    return 0;
+  }
+  return (a.rank as number) - (b.rank as number);
+}
+
 export function Leaderboard({ leaderboard }: ILeaderboardProps) {
   return (
     <table>
@@ -16,12 +27,7 @@ export function Leaderboard({ leaderboard }: ILeaderboardProps) {
       </thead>
       <tbody>
         {Object.values(leaderboard)
-          .sort((a, b) => {
-            if (a.rank === null || b.rank === null) {
-              return 1;
-            }
-            return a.rank - b.rank
-          })
+          .sort(sortFn)
           .map(({ player, rank }) => (
             <tr key={player.id}>
               <td>{rank ?? 'Unranked'}</td>
