@@ -3,8 +3,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import { AddPlayer } from './AddPlayer';
-import { deletePlayerAction, playersArraySelector } from './store';
+import { AddPlayer } from '../add-player/AddPlayer';
+import { deletePlayerAction, playersArraySelector } from '../../store';
 
 export function PlayerList() {
   const dispatch = useDispatch();

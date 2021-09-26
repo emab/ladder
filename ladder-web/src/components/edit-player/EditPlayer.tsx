@@ -5,8 +5,8 @@ import {
   addPlayerLeagueAction,
   playerByIdSelector,
   removePlayerLeagueAction,
-} from './store';
-import { availableLeaguesArraySelector } from './store/leagues/selectors';
+} from '../../store';
+import { availableLeaguesArraySelector } from '../../store/leagues/selectors';
 
 interface IEditPlayerMatch extends IMatch {
   params: {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { LeaderboardEntry } from './types';
+import { LeaderboardEntry } from '../../types';
 
 interface ILeaderboardProps {
   leaderboard: Map<String, LeaderboardEntry>;

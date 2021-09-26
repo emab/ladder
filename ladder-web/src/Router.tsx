@@ -1,8 +1,6 @@
 import React, { ReactChild } from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
-import { EditPlayer } from './EditPlayer';
-import { League } from './League';
-import { PlayerList } from './PlayerList';
+import { EditPlayer, League, PlayerList } from './components';
 
 interface IRouterProps {
   children: ReactChild;

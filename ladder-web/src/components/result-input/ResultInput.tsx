@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import Autocomplete from 'react-autocomplete';
 import { useDispatch, useSelector } from 'react-redux';
-import { playersArraySelector } from './store';
-import { submitLeagueResultAction } from './store/leagues';
-import { Player } from './types';
+import { playersArraySelector } from '../../store';
+import { submitLeagueResultAction } from '../../store/leagues';
+import { Player } from '../../types';
 
 const shouldItemRender = (item: Player, value: string): boolean =>
   item.username.toLowerCase().indexOf(value.toLowerCase()) > -1;

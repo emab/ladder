@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 
-import { ControlBar } from './ControlBar';
+import { ControlBar } from './components';
 import { fetchPlayersAction } from './store';
 
 function App() {

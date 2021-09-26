@@ -1,10 +1,10 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setActiveLeagueAction } from './store/leagues';
+import { setActiveLeagueAction } from '../../store/leagues';
 import {
   availableLeaguesArraySelector,
   selectedLeagueSelector,
-} from './store/leagues/selectors';
+} from '../../store/leagues/selectors';
 
 export const SelectLeague = () => {
   const dispatch = useDispatch();

@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { addPlayerRequestAction } from './store';
+import { addPlayerRequestAction } from '../../store';
 
 export function AddPlayer() {
   const dispatch = useDispatch();

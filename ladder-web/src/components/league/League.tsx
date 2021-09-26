@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Leaderboard } from './Leaderboard';
-import { ResultInput } from './ResultInput';
-import { SelectLeague } from './SelectLeague';
-import { fetchLeaguesAction } from './store/leagues';
-import { selectedLeagueSelector } from './store/leagues/selectors';
+import { Leaderboard } from '../leaderboard/Leaderboard';
+import { ResultInput } from '../result-input/ResultInput';
+import { SelectLeague } from '../select-league/SelectLeague';
+import { fetchLeaguesAction } from '../../store/leagues';
+import { selectedLeagueSelector } from '../../store/leagues/selectors';
 
 export function League() {
   const dispatch = useDispatch();
