@@ -1,5 +1,8 @@
 package com.ladder.server;
 
+import com.ladder.server.requests.AddPlayerRequest;
+import com.ladder.server.requests.UpdatePlayerLeagues;
+import com.ladder.server.requests.UpdateType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,12 +23,21 @@ public class PlayerController {
     }
 
     @PostMapping
-    public Player addPlayer(String username) {
-        return playerRepository.save(new Player(username));
+    public Player addPlayer(@RequestBody AddPlayerRequest request) {
+        return playerRepository.save(new Player(request.getUsername()));
     }
 
-    @PutMapping
-    public void updateScores(UUID winningPlayerId, UUID losingPlayerId) {
-        // TODO score logic
+    @PutMapping("/{id}/league")
+    public void updatePlayerLeagues(@RequestBody UpdatePlayerLeagues request, @PathVariable UUID id) {
+        var playerOptional = playerRepository.findById(id);
+
+        playerOptional.ifPresent(player -> {
+            var playerLeagues = player.getLeagues();
+            if (request.getUpdateType() == UpdateType.ADD) {
+                playerLeagues.add(id);
+            }
+            playerLeagues.remove(id);
+        });
+
     }
 }

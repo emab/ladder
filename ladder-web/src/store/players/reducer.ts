@@ -1,5 +1,5 @@
-import { PlayersAction, PlayersActionType } from './actions';
 import { PlayersState } from '../types';
+import { PlayersAction, PlayersActionType } from './actions';
 
 const initialState: PlayersState = {
   players: {},
@@ -17,6 +17,11 @@ export const playersReducer = (
           (acc, player) => ({ ...acc, [player.id]: player }),
           {}
         ),
+      };
+    case PlayersActionType.ADD_PLAYER:
+      return {
+        ...state,
+        players: { ...state.players, [action.player.id]: action.player },
       };
     default:
       return state;

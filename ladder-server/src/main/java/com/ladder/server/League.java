@@ -7,14 +7,14 @@ import java.util.List;
 import java.util.UUID;
 
 @Data
-public class Player {
+public class League {
     UUID id;
-    String username;
-    List<UUID> leagues;
+    String name;
+    List<LeaderboardEntry> leaderboard;
 
-    public Player(String username) {
+    public League(String name) {
         this.id = UUID.randomUUID();
-        this.username = username;
-        this.leagues = new ArrayList<>();
+        this.name = name;
+        leaderboard = new ArrayList<>();
     }
 }
