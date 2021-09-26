@@ -1,5 +1,8 @@
-package com.ladder.server;
+package com.ladder.server.controller;
 
+import com.ladder.server.service.LeagueService;
+import com.ladder.server.data.Player;
+import com.ladder.server.data.PlayerRepository;
 import com.ladder.server.request.AddPlayerRequest;
 import com.ladder.server.request.UpdatePlayerLeagues;
 import com.ladder.server.request.UpdateType;

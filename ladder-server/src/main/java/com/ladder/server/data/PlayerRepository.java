@@ -1,5 +1,6 @@
-package com.ladder.server;
+package com.ladder.server.data;
 
+import com.ladder.server.data.Player;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,4 +1,4 @@
-package com.ladder.server;
+package com.ladder.server.data;
 
 import lombok.Data;
 
@@ -8,9 +8,9 @@ import java.util.UUID;
 
 @Data
 public class Player {
-    UUID id;
-    String username;
-    List<UUID> leagues;
+    private UUID id;
+    private String username;
+    private List<UUID> leagues;
 
     public Player(String username) {
         this.id = UUID.randomUUID();

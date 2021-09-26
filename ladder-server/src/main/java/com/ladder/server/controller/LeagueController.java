@@ -1,5 +1,8 @@
-package com.ladder.server;
+package com.ladder.server.controller;
 
+import com.ladder.server.data.League;
+import com.ladder.server.data.LeagueRepository;
+import com.ladder.server.service.LeagueService;
 import com.ladder.server.request.LeagueResultRequest;
 import org.springframework.web.bind.annotation.*;
 

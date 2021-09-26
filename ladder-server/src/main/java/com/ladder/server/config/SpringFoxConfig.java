@@ -1,4 +1,4 @@
-package com.ladder.server;
+package com.ladder.server.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

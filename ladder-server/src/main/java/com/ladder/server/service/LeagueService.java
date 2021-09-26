@@ -1,5 +1,9 @@
-package com.ladder.server;
+package com.ladder.server.service;
 
+import com.ladder.server.data.LeagueRepository;
+import com.ladder.server.data.LeaderboardEntry;
+import com.ladder.server.data.League;
+import com.ladder.server.data.Player;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -16,7 +20,7 @@ public class LeagueService {
     public void handlePlayerAdded(Player player, UUID leagueId) {
         var league = leagueRepository.findById(leagueId).orElseThrow();
 
-        league.leaderboard.put(player.getId(), new LeaderboardEntry(null, player));
+        league.getLeaderboard().put(player.getId(), new LeaderboardEntry(null, player));
 
         leagueRepository.save(league);
     }
@@ -24,11 +28,11 @@ public class LeagueService {
     public void handlePlayerRemoved(Player player, UUID leagueId) {
         var league = leagueRepository.findById(leagueId).orElseThrow();
 
-        var deletedRank = league.leaderboard.get(player.getId()).getRank();
+        var deletedRank = league.getLeaderboard().get(player.getId()).getRank();
 
-        league.leaderboard.remove(player.getId());
+        league.getLeaderboard().remove(player.getId());
 
-        league.setLeaderboard(updatePlayerRanks(league.leaderboard, deletedRank));
+        league.setLeaderboard(updatePlayerRanks(league.getLeaderboard(), deletedRank));
 
         leagueRepository.save(league);
     }
@@ -50,27 +54,27 @@ public class LeagueService {
     public League handleLeagueResult(UUID leagueId, UUID winnerId, UUID loserId) {
         var league = leagueRepository.findById(leagueId).orElseThrow();
 
-        var winnerEntry = league.leaderboard.get(winnerId);
-        var loserEntry = league.leaderboard.get(loserId);
+        var winnerEntry = league.getLeaderboard().get(winnerId);
+        var loserEntry = league.getLeaderboard().get(loserId);
 
         var winnerRank = winnerEntry.getRank();
         var loserRank = loserEntry.getRank();
 
         if (loserRank == null && winnerRank == null) {
-            winnerEntry.setRank(getLowestRank(league.leaderboard));
-            loserEntry.setRank(getLowestRank(league.leaderboard));
+            winnerEntry.setRank(getLowestRank(league.getLeaderboard()));
+            loserEntry.setRank(getLowestRank(league.getLeaderboard()));
             return leagueRepository.save(league);
         }
 
         if (loserRank == null) {
-            loserEntry.setRank(getLowestRank(league.leaderboard));
+            loserEntry.setRank(getLowestRank(league.getLeaderboard()));
             return leagueRepository.save(league);
         }
 
         if (winnerRank == null) {
             winnerEntry.setRank(loserRank);
             loserEntry.setRank(loserRank + 1);
-            cascadeRanks(league.leaderboard, loserEntry);
+            cascadeRanks(league.getLeaderboard(), loserEntry);
             return leagueRepository.save(league);
         }
 
@@ -89,7 +93,7 @@ public class LeagueService {
                 .stream()
                 .filter(leaderboardEntry -> leaderboardEntry
                         .getRank() != null)
-                .max((o1, o2) -> new RankComparator().compare(o1, o2))
+                .max(LeaderboardEntry::compareTo)
                 .orElse(null);
 
         if (lowestEntry == null) {
@@ -98,7 +102,7 @@ public class LeagueService {
         return lowestEntry.getRank() + 1;
     }
 
-    private Map<UUID, LeaderboardEntry> cascadeRanks(Map<UUID, LeaderboardEntry> leaderboard, LeaderboardEntry insertEntry) {
+    private void cascadeRanks(Map<UUID, LeaderboardEntry> leaderboard, LeaderboardEntry insertEntry) {
         var insertRank = insertEntry.getRank();
         leaderboard.forEach((key, entry) -> {
             var entryRank = entry.getRank();
@@ -107,7 +111,5 @@ public class LeagueService {
             }
         });
         leaderboard.put(insertEntry.getPlayer().getId(), insertEntry);
-
-        return leaderboard;
     }
 }
