@@ -34,7 +34,13 @@ public class LeagueService {
   }
 
   public void handlePlayerRemoved(Player player, UUID leagueId) {
-    var league = leagueRepository.findById(leagueId).orElseThrow();
+    var league =
+        leagueRepository
+            .findById(leagueId)
+            .orElseThrow(
+                () ->
+                    new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "League was not found in DB"));
 
     var deletedRank = league.getLeaderboard().get(player.getId()).getRank();
 
@@ -54,7 +60,7 @@ public class LeagueService {
               var entryRank = leaderboardEntry.getValue().getRank();
               var entryPlayer = leaderboardEntry.getValue().getPlayer();
 
-              if (entryRank == null || entryRank < deletedRank) {
+              if (entryRank == null || deletedRank == null || entryRank < deletedRank) {
                 return;
               }
               leaderboardEntry.setValue(new LeaderboardEntry(entryRank - 1, entryPlayer));
