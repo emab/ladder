@@ -89,7 +89,7 @@ public class LeagueService {
                 .stream()
                 .filter(leaderboardEntry -> leaderboardEntry
                         .getRank() != null)
-                .min((o1, o2) -> new RankComparator().compare(o1, o2))
+                .max((o1, o2) -> new RankComparator().compare(o1, o2))
                 .orElse(null);
 
         if (lowestEntry == null) {
