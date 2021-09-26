@@ -14,9 +14,11 @@ import java.util.UUID;
 @RequestMapping("/player")
 public class PlayerController {
     private final PlayerRepository playerRepository;
+    private final LeagueService leagueService;
 
-    public PlayerController(PlayerRepository playerRepository) {
+    public PlayerController(PlayerRepository playerRepository, LeagueService leagueService) {
         this.playerRepository = playerRepository;
+        this.leagueService = leagueService;
     }
 
     @GetMapping
@@ -46,8 +48,10 @@ public class PlayerController {
 
         if (request.getUpdateType() == UpdateType.ADD) {
             playerLeagues.add(request.getLeagueId());
+            leagueService.handlePlayerAdded(player, request.getLeagueId());
         } else {
             playerLeagues.remove(request.getLeagueId());
+            leagueService.handlePlayerRemoved(player, request.getLeagueId());
         }
         return playerRepository.save(player);
     }

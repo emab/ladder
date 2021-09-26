@@ -5,6 +5,7 @@ export enum LeagueActionType {
   GET_LEAGUE = 'GET_LEAGUE',
   FETCH_LEAGUES = 'FETCH_LEAGUES',
   SET_AVAILABLE_LEAGUES = 'SET_AVAILABLE_LEAGUES',
+  SUBMIT_LEAGUE_RESULT = 'SUBMIT_LEAGUE_RESULT',
 }
 
 export interface GetLeagueAction {
@@ -20,7 +21,9 @@ export interface SetActiveLeagueAction {
   leagueId: string;
 }
 
-export const setActiveLeagueAction = (leagueId: string): SetActiveLeagueAction => ({
+export const setActiveLeagueAction = (
+  leagueId: string
+): SetActiveLeagueAction => ({
   type: LeagueActionType.SET_ACTIVE_LEAGUE,
   leagueId,
 });
@@ -45,8 +48,27 @@ export const setAvailableLeaguesAction = (
   leagues,
 });
 
+export interface SubmitLeagueResultAction {
+  type: LeagueActionType.SUBMIT_LEAGUE_RESULT;
+  leagueId: string;
+  winnerId: string;
+  loserId: string;
+}
+
+export const submitLeagueResultAction = (
+  leagueId: string,
+  winnerId: string,
+  loserId: string
+): SubmitLeagueResultAction => ({
+  type: LeagueActionType.SUBMIT_LEAGUE_RESULT,
+  leagueId,
+  winnerId,
+  loserId,
+});
+
 export type LeagueAction =
   | GetLeagueAction
   | SetActiveLeagueAction
   | FetchLeaguesAction
-  | SetAvailableLeaguesAction;
+  | SetAvailableLeaguesAction
+  | SubmitLeagueResultAction;

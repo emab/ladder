@@ -1,5 +1,6 @@
 package com.ladder.server;
 
+import com.ladder.server.request.LeagueResultRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,9 +11,11 @@ import java.util.UUID;
 public class LeagueController {
 
     private final LeagueRepository leagueRepository;
+    private final LeagueService leagueService;
 
-    public LeagueController(LeagueRepository leagueRepository) {
+    public LeagueController(LeagueRepository leagueRepository, LeagueService leagueService) {
         this.leagueRepository = leagueRepository;
+        this.leagueService = leagueService;
     }
 
     @GetMapping
@@ -25,8 +28,13 @@ public class LeagueController {
         return leagueRepository.save(new League(name));
     }
 
-    @GetMapping("/{id}")
-    public League getLeague(@PathVariable UUID id) {
-        return leagueRepository.findById(id).orElseThrow();
+    @GetMapping("/{leagueId}")
+    public League getLeague(@PathVariable UUID leagueId) {
+        return leagueRepository.findById(leagueId).orElseThrow();
+    }
+
+    @PostMapping("/{leagueId}/result")
+    public League addLeagueResult(@PathVariable UUID leagueId, @RequestBody LeagueResultRequest request) {
+        return leagueService.handleLeagueResult(leagueId, request.getWinnerId(), request.getLoserId());
     }
 }

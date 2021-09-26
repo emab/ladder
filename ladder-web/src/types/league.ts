@@ -3,10 +3,10 @@ import { Player } from './player';
 export interface League {
   id: string;
   name: string;
-  leaderboard: Array<LeaderboardEntry>
+  leaderboard: Map<String, LeaderboardEntry>
 }
 
 export interface LeaderboardEntry {
-  rank: number;
+  rank: number | null;
   player: Player;
 }
