@@ -6,6 +6,6 @@ import java.util.UUID;
 
 @Data
 public class LeagueResultRequest {
-    UUID winnerId;
-    UUID loserId;
+  UUID winnerId;
+  UUID loserId;
 }

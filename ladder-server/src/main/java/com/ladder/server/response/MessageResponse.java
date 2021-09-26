@@ -4,9 +4,9 @@ import lombok.Data;
 
 @Data
 public class MessageResponse {
-    String message;
+  String message;
 
-    public MessageResponse(String message) {
-        this.message = message;
-    }
+  public MessageResponse(String message) {
+    this.message = message;
+  }
 }
