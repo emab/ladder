@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import Autocomplete from 'react-autocomplete';
 import { useDispatch, useSelector } from 'react-redux';
-import { playersArraySelector } from '../../store';
 import { submitLeagueResultAction } from '../../store/leagues';
 import { Player } from '../../types';
+import { leaguePlayerSelector } from './selectors';
 
 const shouldItemRender = (item: Player, value: string): boolean =>
   item.username.toLowerCase().indexOf(value.toLowerCase()) > -1;
@@ -20,7 +20,7 @@ export function ResultInput({ leagueId }: IResultInputProps) {
   const [losingPlayerInput, setLosingPlayerInput] = useState('');
   const [losingPlayer, setLosingPlayer] = useState<Player>();
 
-  const players = useSelector(playersArraySelector);
+  const players = useSelector(leaguePlayerSelector);
 
   const onResultSubmit = () => {
     if (winningPlayer && losingPlayer) {
