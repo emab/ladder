@@ -111,27 +111,27 @@ class LeagueServiceTest {
     var mockPlayer_bottomRank = new Player("Bottom rank");
     var mockPlayer_topRank = new Player("Top rank");
     var mockLeaderboard =
-            getMockLeaderboard(
-                    new Integer[] {null, 2, 1},
-                    new Player[] {mockPlayer_noRank, mockPlayer_bottomRank, mockPlayer_topRank});
+        getMockLeaderboard(
+            new Integer[] {null, 2, 1},
+            new Player[] {mockPlayer_noRank, mockPlayer_bottomRank, mockPlayer_topRank});
     mockLeague.setLeaderboard(mockLeaderboard);
 
     doReturn(Optional.of(mockLeague)).when(leagueRepository).findById(mockUUID);
 
     var expectedLeaderboard =
-            getMockLeaderboard(
-                    new Integer[] {null, 1}, new Player[] {mockPlayer_noRank, mockPlayer_topRank});
+        getMockLeaderboard(
+            new Integer[] {null, 1}, new Player[] {mockPlayer_noRank, mockPlayer_topRank});
 
     leagueService.handlePlayerRemoved(mockPlayer_bottomRank, mockUUID);
 
     assertNull(mockLeague.getLeaderboard().get(mockPlayer_bottomRank.getId()));
     verify(leagueRepository)
-            .save(
-                    argThat(
-                            arg -> {
-                              assertEquals(arg.getLeaderboard(), expectedLeaderboard);
-                              return true;
-                            }));
+        .save(
+            argThat(
+                arg -> {
+                  assertEquals(arg.getLeaderboard(), expectedLeaderboard);
+                  return true;
+                }));
   }
 
   @Test
@@ -142,27 +142,27 @@ class LeagueServiceTest {
     var mockPlayer_bottomRank = new Player("Bottom rank");
     var mockPlayer_topRank = new Player("Top rank");
     var mockLeaderboard =
-            getMockLeaderboard(
-                    new Integer[] {null, 2, 1},
-                    new Player[] {mockPlayer_noRank, mockPlayer_bottomRank, mockPlayer_topRank});
+        getMockLeaderboard(
+            new Integer[] {null, 2, 1},
+            new Player[] {mockPlayer_noRank, mockPlayer_bottomRank, mockPlayer_topRank});
     mockLeague.setLeaderboard(mockLeaderboard);
 
     doReturn(Optional.of(mockLeague)).when(leagueRepository).findById(mockUUID);
 
     var expectedLeaderboard =
-            getMockLeaderboard(
-                    new Integer[] {null, 1}, new Player[] {mockPlayer_noRank, mockPlayer_bottomRank});
+        getMockLeaderboard(
+            new Integer[] {null, 1}, new Player[] {mockPlayer_noRank, mockPlayer_bottomRank});
 
     leagueService.handlePlayerRemoved(mockPlayer_topRank, mockUUID);
 
     assertNull(mockLeague.getLeaderboard().get(mockPlayer_topRank.getId()));
     verify(leagueRepository)
-            .save(
-                    argThat(
-                            arg -> {
-                              assertEquals(arg.getLeaderboard(), expectedLeaderboard);
-                              return true;
-                            }));
+        .save(
+            argThat(
+                arg -> {
+                  assertEquals(arg.getLeaderboard(), expectedLeaderboard);
+                  return true;
+                }));
   }
 
   @Test
@@ -173,10 +173,42 @@ class LeagueServiceTest {
     doReturn(Optional.empty()).when(leagueRepository).findById(mockUUID);
 
     assertThrows(
-            ResponseStatusException.class, () -> leagueService.handlePlayerRemoved(mockPlayer, mockUUID));
+        ResponseStatusException.class,
+        () -> leagueService.handlePlayerRemoved(mockPlayer, mockUUID));
     verify(leagueRepository, never()).save(any());
   }
 
   @Test
-  void handleLeagueResult() {}
+  void
+      handleLeagueResult_withFoundLeague_withNullLoserAndWinnerRank_setsAtBottomTwoAvailableRanks() {
+    var mockLeagueId = UUID.randomUUID();
+    var league = new League("League");
+    var winner = new Player("Winner");
+    var loser = new Player("Loser");
+    var winnerId = winner.getId();
+    var loserId = loser.getId();
+    var middlePlayer = new Player("2");
+    var topPlayer = new Player("1");
+    var leaderboard =
+        getMockLeaderboard(
+            new Integer[] {null, null, 2, 1},
+            new Player[] {loser, winner, middlePlayer, topPlayer});
+    league.setLeaderboard(leaderboard);
+
+    doReturn(Optional.of(league)).when(leagueRepository).findById(mockLeagueId);
+    leagueService.handleLeagueResult(mockLeagueId, winnerId, loserId);
+
+    var expectedLeaderboard =
+        getMockLeaderboard(
+            new Integer[] {4, 3, 2, 1}, new Player[] {loser, winner, middlePlayer, topPlayer});
+    verify(leagueRepository)
+        .save(
+            argThat(
+                arg -> {
+                  assertEquals(arg.getLeaderboard(), expectedLeaderboard);
+                  return true;
+                }));
+  }
+
+  // TODO more league service tests for other cases
 }
