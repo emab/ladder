@@ -12,6 +12,11 @@ public class LeaderboardEntry implements Comparable<LeaderboardEntry> {
     this.player = player;
   }
 
+  public LeaderboardEntry(Player player) {
+    this.rank = null;
+    this.player = player;
+  }
+
   @Override
   public int compareTo(LeaderboardEntry other) {
     var otherRank = other.getRank();

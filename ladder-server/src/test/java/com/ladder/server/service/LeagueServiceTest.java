@@ -1,22 +1,19 @@
-package java.com.ladder.server.service;
+package com.ladder.server.service;
 
-import com.ladder.server.data.LeaderboardEntry;
 import com.ladder.server.data.League;
 import com.ladder.server.data.LeagueRepository;
 import com.ladder.server.data.Player;
-import com.ladder.server.service.LeagueService;
+import com.ladder.server.data.PlayerRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class LeagueServiceTest {
@@ -25,190 +22,103 @@ class LeagueServiceTest {
   private LeagueService leagueService;
 
   @Mock private LeagueRepository leagueRepository;
+  @Mock private PlayerRepository playerRepository;
+  @Mock private League league;
 
   @BeforeEach
   void setUp() {
-    closeable = MockitoAnnotations.openMocks(this);
-    leagueService = new LeagueService(leagueRepository);
+    this.closeable = MockitoAnnotations.openMocks(this);
+    this.leagueService = new LeagueService(leagueRepository, playerRepository);
   }
 
   @AfterEach
   void cleanUp() throws Exception {
-    closeable.close();
+    this.closeable.close();
   }
 
-  private Map<UUID, LeaderboardEntry> getMockLeaderboard(Integer[] ranks, Player[] players) {
-    var leaderboard = new HashMap<UUID, LeaderboardEntry>();
-    for (int i = 0; i < ranks.length; i++) {
-      leaderboard.put(players[i].getId(), new LeaderboardEntry(ranks[i], players[i]));
-    }
+  private final UUID uuid = UUID.randomUUID();
+  private final Player player = new Player("player");
 
-    return leaderboard;
+  @Test
+  void handlePlayerAdded_withFoundLeagueAndPlayer_savesUpdatedLeague() {
+    doReturn(Optional.of(league)).when(leagueRepository).findById(uuid);
+    doReturn(Optional.of(player)).when(playerRepository).findById(uuid);
+
+    leagueService.handlePlayerAdded(uuid, uuid);
+
+    verify(leagueRepository, times(1)).save(league);
   }
 
   @Test
-  void handlePlayerAdded_withFoundLeague_addsPlayerToLeague() {
-    var mockPlayer = new Player("Test");
-    var mockUUID = UUID.randomUUID();
-    var mockLeague = new League("Test league");
-    var mockLeagueOptional = Optional.of(mockLeague);
+  void handlePlayerAdded_withNotFoundLeagueAndFoundPlayer_throwsRuntimeError() {
+    doReturn(Optional.empty()).when(leagueRepository).findById(uuid);
+    doReturn(Optional.of(player)).when(playerRepository).findById(uuid);
 
-    doReturn(mockLeagueOptional).when(leagueRepository).findById(mockUUID);
-    leagueService.handlePlayerAdded(mockPlayer, mockUUID);
-
-    assertEquals(mockLeague.getLeaderboard().get(mockPlayer.getId()).getPlayer(), mockPlayer);
-  }
-
-  @Test
-  void handlePlayerAdded_withNotFoundLeague_throwsResponseStatusExceptionAndDoesNotSave() {
-    var mockPlayer = new Player("Test");
-    var mockUUID = UUID.randomUUID();
-    var mockLeagueOptional = Optional.empty();
-
-    doReturn(mockLeagueOptional).when(leagueRepository).findById(mockUUID);
-
-    assertThrows(
-        RuntimeException.class, () -> leagueService.handlePlayerAdded(mockPlayer, mockUUID));
+    assertThrows(RuntimeException.class, () -> leagueService.handlePlayerAdded(uuid, uuid));
     verify(leagueRepository, never()).save(any());
   }
 
   @Test
-  void handlePlayerRemoved_withFoundLeague_removesNoRankPlayerWithoutChangingOtherRanks() {
-    var mockUUID = UUID.randomUUID();
-    var mockLeague = new League("League");
-    var mockPlayer_noRank = new Player("No rank");
-    var mockPlayer_bottomRank = new Player("Bottom rank");
-    var mockPlayer_topRank = new Player("Top rank");
-    var mockLeaderboard =
-        getMockLeaderboard(
-            new Integer[] {null, 2, 1},
-            new Player[] {mockPlayer_noRank, mockPlayer_bottomRank, mockPlayer_topRank});
-    mockLeague.setLeaderboard(mockLeaderboard);
+  void handlePlayerAdded_withFoundLeagueAndNotFoundPlayer_throwsRuntimeError() {
+    doReturn(Optional.of(league)).when(leagueRepository).findById(uuid);
+    doReturn(Optional.empty()).when(playerRepository).findById(uuid);
 
-    doReturn(Optional.of(mockLeague)).when(leagueRepository).findById(mockUUID);
-
-    var expectedLeaderboard =
-        getMockLeaderboard(
-            new Integer[] {2, 1}, new Player[] {mockPlayer_bottomRank, mockPlayer_topRank});
-
-    leagueService.handlePlayerRemoved(mockPlayer_noRank, mockUUID);
-
-    assertNull(mockLeague.getLeaderboard().get(mockPlayer_noRank.getId()));
-    verify(leagueRepository)
-        .save(
-            argThat(
-                arg -> {
-                  assertEquals(arg.getLeaderboard(), expectedLeaderboard);
-                  return true;
-                }));
-  }
-
-  @Test
-  void handlePlayerRemoved_withFoundLeague_removesBottomRankPlayerAndDoesNotChangeScoreboard() {
-    var mockUUID = UUID.randomUUID();
-    var mockLeague = new League("League");
-    var mockPlayer_noRank = new Player("No rank");
-    var mockPlayer_bottomRank = new Player("Bottom rank");
-    var mockPlayer_topRank = new Player("Top rank");
-    var mockLeaderboard =
-        getMockLeaderboard(
-            new Integer[] {null, 2, 1},
-            new Player[] {mockPlayer_noRank, mockPlayer_bottomRank, mockPlayer_topRank});
-    mockLeague.setLeaderboard(mockLeaderboard);
-
-    doReturn(Optional.of(mockLeague)).when(leagueRepository).findById(mockUUID);
-
-    var expectedLeaderboard =
-        getMockLeaderboard(
-            new Integer[] {null, 1}, new Player[] {mockPlayer_noRank, mockPlayer_topRank});
-
-    leagueService.handlePlayerRemoved(mockPlayer_bottomRank, mockUUID);
-
-    assertNull(mockLeague.getLeaderboard().get(mockPlayer_bottomRank.getId()));
-    verify(leagueRepository)
-        .save(
-            argThat(
-                arg -> {
-                  assertEquals(arg.getLeaderboard(), expectedLeaderboard);
-                  return true;
-                }));
-  }
-
-  @Test
-  void handlePlayerRemoved_withFoundLeague_removesHighRankedPlayerAndUpdatesScoreboard() {
-    var mockUUID = UUID.randomUUID();
-    var mockLeague = new League("League");
-    var mockPlayer_noRank = new Player("No rank");
-    var mockPlayer_bottomRank = new Player("Bottom rank");
-    var mockPlayer_topRank = new Player("Top rank");
-    var mockLeaderboard =
-        getMockLeaderboard(
-            new Integer[] {null, 2, 1},
-            new Player[] {mockPlayer_noRank, mockPlayer_bottomRank, mockPlayer_topRank});
-    mockLeague.setLeaderboard(mockLeaderboard);
-
-    doReturn(Optional.of(mockLeague)).when(leagueRepository).findById(mockUUID);
-
-    var expectedLeaderboard =
-        getMockLeaderboard(
-            new Integer[] {null, 1}, new Player[] {mockPlayer_noRank, mockPlayer_bottomRank});
-
-    leagueService.handlePlayerRemoved(mockPlayer_topRank, mockUUID);
-
-    assertNull(mockLeague.getLeaderboard().get(mockPlayer_topRank.getId()));
-    verify(leagueRepository)
-        .save(
-            argThat(
-                arg -> {
-                  assertEquals(arg.getLeaderboard(), expectedLeaderboard);
-                  return true;
-                }));
-  }
-
-  @Test
-  void handlePlayerRemoved_withNotFoundLeague_throwsResponseStatusExceptionAndDoesNotSave() {
-    var mockUUID = UUID.randomUUID();
-    var mockPlayer = new Player("Mock");
-
-    doReturn(Optional.empty()).when(leagueRepository).findById(mockUUID);
-
-    assertThrows(
-        RuntimeException.class,
-        () -> leagueService.handlePlayerRemoved(mockPlayer, mockUUID));
+    assertThrows(RuntimeException.class, () -> leagueService.handlePlayerAdded(uuid, uuid));
     verify(leagueRepository, never()).save(any());
   }
 
   @Test
-  void
-      handleLeagueResult_withFoundLeague_withNullLoserAndWinnerRank_setsAtBottomTwoAvailableRanks() {
-    var mockLeagueId = UUID.randomUUID();
-    var league = new League("League");
-    var winner = new Player("Winner");
-    var loser = new Player("Loser");
-    var winnerId = winner.getId();
-    var loserId = loser.getId();
-    var middlePlayer = new Player("2");
-    var topPlayer = new Player("1");
-    var leaderboard =
-        getMockLeaderboard(
-            new Integer[] {null, null, 2, 1},
-            new Player[] {loser, winner, middlePlayer, topPlayer});
-    league.setLeaderboard(leaderboard);
+  void handlePlayerRemoved_withFoundLeagueAndFoundPlayer_savesUpdatedLeague() {
+    doReturn(Optional.of(league)).when(leagueRepository).findById(uuid);
+    doReturn(Optional.of(player)).when(playerRepository).findById(uuid);
 
-    doReturn(Optional.of(league)).when(leagueRepository).findById(mockLeagueId);
-    leagueService.handleLeagueResult(mockLeagueId, winnerId, loserId);
+    leagueService.handlePlayerRemoved(uuid, uuid);
 
-    var expectedLeaderboard =
-        getMockLeaderboard(
-            new Integer[] {4, 3, 2, 1}, new Player[] {loser, winner, middlePlayer, topPlayer});
-    verify(leagueRepository)
-        .save(
-            argThat(
-                arg -> {
-                  assertEquals(arg.getLeaderboard(), expectedLeaderboard);
-                  return true;
-                }));
+    verify(leagueRepository, times(1)).save(league);
   }
 
-  // TODO more league service tests for other cases
+  @Test
+  void handlePlayerRemoved_withNotFoundLeagueAndFoundPlayer_throwsRuntimeError() {
+    doReturn(Optional.empty()).when(leagueRepository).findById(uuid);
+    doReturn(Optional.of(player)).when(playerRepository).findById(uuid);
+
+    assertThrows(RuntimeException.class, () -> leagueService.handlePlayerRemoved(uuid, uuid));
+    verify(leagueRepository, never()).save(any());
+  }
+
+  @Test
+  void handlePlayerRemoved_withFoundLeagueAndNotFoundPlayer_throwsRuntimeError() {
+    doReturn(Optional.of(league)).when(leagueRepository).findById(uuid);
+    doReturn(Optional.empty()).when(playerRepository).findById(uuid);
+
+    assertThrows(RuntimeException.class, () -> leagueService.handlePlayerRemoved(uuid, uuid));
+    verify(leagueRepository, never()).save(any());
+  }
+
+  @Test
+  void handleLeagueResult_withFoundLeagueAndFoundPlayer_savesUpdatedLeague() {
+    doReturn(Optional.of(league)).when(leagueRepository).findById(uuid);
+    doReturn(Optional.of(player)).when(playerRepository).findById(uuid);
+
+    leagueService.handleLeagueResult(uuid, uuid, uuid);
+    verify(leagueRepository, times(1)).save(league);
+  }
+
+  @Test
+  void handleLeagueResult_withNotFoundLeagueAndFoundPlayer_throwsRuntimeError() {
+    doReturn(Optional.empty()).when(leagueRepository).findById(uuid);
+    doReturn(Optional.of(player)).when(playerRepository).findById(uuid);
+
+    assertThrows(RuntimeException.class, () -> leagueService.handleLeagueResult(uuid, uuid, uuid));
+    verify(leagueRepository, never()).save(any());
+  }
+
+  @Test
+  void handleLeagueResult_withFoundLeagueAndNotFoundPlayer_throwsRuntimeError() {
+    doReturn(Optional.of(league)).when(leagueRepository).findById(uuid);
+    doReturn(Optional.empty()).when(playerRepository).findById(uuid);
+
+    assertThrows(RuntimeException.class, () -> leagueService.handleLeagueResult(uuid, uuid, uuid));
+    verify(leagueRepository, never()).save(any());
+  }
 }

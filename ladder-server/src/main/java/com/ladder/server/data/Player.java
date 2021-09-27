@@ -10,11 +10,9 @@ import java.util.UUID;
 public class Player {
   private UUID id;
   private String username;
-  private List<UUID> leagues;
 
   public Player(String username) {
     this.id = UUID.randomUUID();
     this.username = username;
-    this.leagues = new ArrayList<>();
   }
 }

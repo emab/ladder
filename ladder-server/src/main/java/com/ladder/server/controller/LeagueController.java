@@ -2,6 +2,7 @@ package com.ladder.server.controller;
 
 import com.ladder.server.data.League;
 import com.ladder.server.data.LeagueRepository;
+import com.ladder.server.request.LeaguePlayerRequest;
 import com.ladder.server.request.LeagueResultRequest;
 import com.ladder.server.service.LeagueService;
 import org.springframework.web.bind.annotation.*;
@@ -40,5 +41,15 @@ public class LeagueController {
   public League addLeagueResult(
       @PathVariable UUID leagueId, @RequestBody LeagueResultRequest request) {
     return leagueService.handleLeagueResult(leagueId, request.getWinnerId(), request.getLoserId());
+  }
+
+  @PostMapping("/{leagueId}/player")
+  public League addLeaguePlayer(@PathVariable UUID leagueId, @RequestBody LeaguePlayerRequest request) {
+    return leagueService.handlePlayerAdded(leagueId, request.getPlayerId());
+  }
+
+  @DeleteMapping("/{leagueId}/player")
+  public League removeLeaguePlayer(@PathVariable UUID leagueId, @RequestBody LeaguePlayerRequest request) {
+    return leagueService.handlePlayerRemoved(leagueId, request.getPlayerId());
   }
 }
