@@ -19,114 +19,33 @@ public class LeagueService {
     this.leagueRepository = leagueRepository;
   }
 
-  public void handlePlayerAdded(Player player, UUID leagueId) {
-    var league =
-        leagueRepository
-            .findById(leagueId)
-            .orElseThrow(
-                () ->
-                    new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "League was not found in DB"));
-
-    league.getLeaderboard().put(player.getId(), new LeaderboardEntry(null, player));
-
-    leagueRepository.save(league);
+  private League findLeagueById(UUID leagueId) throws RuntimeException {
+    if (leagueId == null) {
+      // TODO better exception, handle in controller layer with nice response
+      throw new RuntimeException("leagueId cannot be null");
+    }
+    return leagueRepository
+        .findById(leagueId)
+        .orElseThrow(() -> new RuntimeException("league not found"));
   }
 
-  public void handlePlayerRemoved(Player player, UUID leagueId) {
-    var league =
-        leagueRepository
-            .findById(leagueId)
-            .orElseThrow(
-                () ->
-                    new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "League was not found in DB"));
+  public League handlePlayerAdded(Player player, UUID leagueId) {
+    League league = findLeagueById(leagueId);
 
-    var deletedRank = league.getLeaderboard().get(player.getId()).getRank();
-
-    league.getLeaderboard().remove(player.getId());
-
-    league.setLeaderboard(updatePlayerRanks(league.getLeaderboard(), deletedRank));
-
-    leagueRepository.save(league);
-  }
-
-  private Map<UUID, LeaderboardEntry> updatePlayerRanks(
-      Map<UUID, LeaderboardEntry> leaderboard, Integer deletedRank) {
-    leaderboard
-        .entrySet()
-        .forEach(
-            leaderboardEntry -> {
-              var entryRank = leaderboardEntry.getValue().getRank();
-              var entryPlayer = leaderboardEntry.getValue().getPlayer();
-
-              if (entryRank == null || deletedRank == null || entryRank < deletedRank) {
-                return;
-              }
-              leaderboardEntry.setValue(new LeaderboardEntry(entryRank - 1, entryPlayer));
-            });
-
-    return leaderboard;
-  }
-
-  public League handleLeagueResult(UUID leagueId, UUID winnerId, UUID loserId) {
-    var league = leagueRepository.findById(leagueId).orElseThrow();
-
-    var winnerEntry = league.getLeaderboard().get(winnerId);
-    var loserEntry = league.getLeaderboard().get(loserId);
-
-    var winnerRank = winnerEntry.getRank();
-    var loserRank = loserEntry.getRank();
-
-    if (loserRank == null && winnerRank == null) {
-      winnerEntry.setRank(getLowestRank(league.getLeaderboard()));
-      loserEntry.setRank(getLowestRank(league.getLeaderboard()));
-      return leagueRepository.save(league);
-    }
-
-    if (loserRank == null) {
-      loserEntry.setRank(getLowestRank(league.getLeaderboard()));
-      return leagueRepository.save(league);
-    }
-
-    if (winnerRank == null) {
-      winnerEntry.setRank(loserRank);
-      loserEntry.setRank(loserRank + 1);
-      cascadeRanks(league.getLeaderboard(), loserEntry);
-      return leagueRepository.save(league);
-    }
-
-    if (loserRank < winnerRank) {
-      winnerEntry.setRank(loserRank);
-      loserEntry.setRank(winnerRank);
-      return leagueRepository.save(league);
-    }
+    league.addPlayer(player);
 
     return leagueRepository.save(league);
   }
 
-  private Integer getLowestRank(Map<UUID, LeaderboardEntry> leaderboard) {
-    var lowestEntry =
-        leaderboard.values().stream()
-            .filter(leaderboardEntry -> leaderboardEntry.getRank() != null)
-            .max(LeaderboardEntry::compareTo)
-            .orElse(null);
-
-    if (lowestEntry == null) {
-      return 1;
-    }
-    return lowestEntry.getRank() + 1;
+  public League handlePlayerRemoved(Player player, UUID leagueId) {
+    League league = findLeagueById(leagueId);
+    league.removePlayer(player);
+    return leagueRepository.save(league);
   }
 
-  private void cascadeRanks(Map<UUID, LeaderboardEntry> leaderboard, LeaderboardEntry insertEntry) {
-    var insertRank = insertEntry.getRank();
-    leaderboard.forEach(
-        (key, entry) -> {
-          var entryRank = entry.getRank();
-          if (entry.getRank() != null && entry != insertEntry && insertRank <= entry.getRank()) {
-            entry.setRank(entryRank + 1);
-          }
-        });
-    leaderboard.put(insertEntry.getPlayer().getId(), insertEntry);
+  public League handleLeagueResult(UUID leagueId, UUID winnerId, UUID loserId) {
+    var league = findLeagueById(leagueId);
+    league.handleLeagueResult(winnerId, loserId);
+    return leagueRepository.save(league);
   }
 }

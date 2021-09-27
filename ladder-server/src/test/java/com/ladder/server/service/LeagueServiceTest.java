@@ -1,15 +1,15 @@
-package com.ladder.server.service;
+package java.com.ladder.server.service;
 
 import com.ladder.server.data.LeaderboardEntry;
 import com.ladder.server.data.League;
 import com.ladder.server.data.LeagueRepository;
 import com.ladder.server.data.Player;
+import com.ladder.server.service.LeagueService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -68,7 +68,7 @@ class LeagueServiceTest {
     doReturn(mockLeagueOptional).when(leagueRepository).findById(mockUUID);
 
     assertThrows(
-        ResponseStatusException.class, () -> leagueService.handlePlayerAdded(mockPlayer, mockUUID));
+        RuntimeException.class, () -> leagueService.handlePlayerAdded(mockPlayer, mockUUID));
     verify(leagueRepository, never()).save(any());
   }
 
@@ -173,7 +173,7 @@ class LeagueServiceTest {
     doReturn(Optional.empty()).when(leagueRepository).findById(mockUUID);
 
     assertThrows(
-        ResponseStatusException.class,
+        RuntimeException.class,
         () -> leagueService.handlePlayerRemoved(mockPlayer, mockUUID));
     verify(leagueRepository, never()).save(any());
   }
