@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import Autocomplete from 'react-autocomplete';
 import { useDispatch, useSelector } from 'react-redux';
 import { submitLeagueResultAction } from '../../store/leagues';
-import { Player } from '../../types';
+import { LeagueId, Player } from '../../types';
 import { leaguePlayerSelector } from './selectors';
 
 const shouldItemRender = (item: Player, value: string): boolean =>
   item.username.toLowerCase().indexOf(value.toLowerCase()) > -1;
 
 interface IResultInputProps {
-  leagueId: string;
+  leagueId: LeagueId;
 }
 
 export function ResultInput({ leagueId }: IResultInputProps) {
@@ -25,7 +25,7 @@ export function ResultInput({ leagueId }: IResultInputProps) {
   const onResultSubmit = () => {
     if (winningPlayer && losingPlayer) {
       dispatch(
-        submitLeagueResultAction(leagueId, winningPlayer.id, losingPlayer.id)
+        submitLeagueResultAction(leagueId, winningPlayer.playerId, losingPlayer.playerId)
       );
       setWinningPlayerInput('');
       setWinningPlayer(undefined);
@@ -38,7 +38,7 @@ export function ResultInput({ leagueId }: IResultInputProps) {
     <div className="mx-5">
       Winner:{' '}
       <Autocomplete
-        items={players.filter((player) => player.id !== losingPlayer?.id)}
+        items={players.filter((player) => player.playerId !== losingPlayer?.playerId)}
         shouldItemRender={shouldItemRender}
         value={winningPlayerInput}
         onChange={(e) => {
@@ -59,7 +59,7 @@ export function ResultInput({ leagueId }: IResultInputProps) {
       />
       Loser:{' '}
       <Autocomplete
-        items={players.filter((player) => player.id !== winningPlayer?.id)}
+        items={players.filter((player) => player.playerId !== winningPlayer?.playerId)}
         shouldItemRender={shouldItemRender}
         value={losingPlayerInput}
         onChange={(e) => {

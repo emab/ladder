@@ -1,12 +1,13 @@
+import { Challenge } from './challenge';
+import { Leaderboard } from './leaderboard';
 import { Player } from './player';
 
-export interface League {
-  id: string;
-  name: string;
-  leaderboard: Map<String, LeaderboardEntry>
-}
+export type LeagueId = number;
 
-export interface LeaderboardEntry {
-  rank: number | null;
-  player: Player;
+export interface League {
+  leagueId: LeagueId;
+  name: string;
+  challenges: Array<Challenge>
+  players: Array<Player>
+  leaderboard: Leaderboard;
 }
