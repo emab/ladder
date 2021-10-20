@@ -1,9 +1,9 @@
 package com.ladder.server.data;
 
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
 
 @Repository
-public interface LeagueRepository extends MongoRepository<League, UUID> {}
+public interface LeagueRepository extends JpaRepository<League, Integer> {}

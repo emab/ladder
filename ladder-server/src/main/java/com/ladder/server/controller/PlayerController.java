@@ -1,41 +1,42 @@
 package com.ladder.server.controller;
 
+import com.ladder.server.data.Challenge;
 import com.ladder.server.data.Player;
-import com.ladder.server.data.PlayerRepository;
 import com.ladder.server.request.AddPlayerRequest;
-import org.springframework.http.HttpStatus;
+import com.ladder.server.service.ChallengeService;
+import com.ladder.server.service.PlayerService;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/player")
 public class PlayerController {
-  private final PlayerRepository playerRepository;
+  private final PlayerService playerService;
+  private final ChallengeService challengeService;
 
-  public PlayerController(PlayerRepository playerRepository) {
-    this.playerRepository = playerRepository;
+  public PlayerController(PlayerService playerService, ChallengeService challengeService) {
+    this.playerService = playerService;
+    this.challengeService = challengeService;
   }
 
   @GetMapping
   public List<Player> getPlayers() {
-    return playerRepository.findAll();
+    return playerService.getPlayers();
   }
 
   @PostMapping
   public Player addPlayer(@RequestBody AddPlayerRequest request) {
-    return playerRepository.save(new Player(request.getUsername()));
+    return playerService.addPlayer(request.getUsername());
   }
 
-  @DeleteMapping("/{id}")
-  public void deletePlayer(@PathVariable UUID id) {
-    var playerOptional = playerRepository.findById(id);
-    var player =
-        playerOptional.orElseThrow(
-            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Player was not found in DB"));
+  @DeleteMapping("/{playerId}")
+  public Player deletePlayer(@PathVariable Integer playerId) {
+    return playerService.deletePlayer(playerId);
+  }
 
-    playerRepository.delete(player);
+  @GetMapping("/{playerId}/challenge")
+  public List<Challenge> getPlayerChallenges(@PathVariable Integer playerId) {
+    return challengeService.getPlayerChallenges(playerId);
   }
 }

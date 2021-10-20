@@ -1,4 +1,4 @@
-import { Player } from '../../types';
+import { Player, PlayerId } from '../../types';
 
 export enum PlayersActionType {
   ADD_PLAYER_REQUEST = 'ADD_PLAYER_REQUEST',
@@ -52,13 +52,13 @@ export const setPlayersAction = (players: Array<Player>): SetPlayersAction => ({
 
 export interface AddPlayerLeagueAction {
   type: PlayersActionType.ADD_PLAYER_LEAGUE;
-  playerId: string;
-  leagueId: string;
+  playerId: PlayerId;
+  leagueId: PlayerId;
 }
 
 export const addPlayerLeagueAction = (
-  playerId: string,
-  leagueId: string
+  playerId: PlayerId,
+  leagueId: PlayerId
 ): AddPlayerLeagueAction => ({
   type: PlayersActionType.ADD_PLAYER_LEAGUE,
   playerId,
@@ -67,13 +67,13 @@ export const addPlayerLeagueAction = (
 
 export interface RemovePlayerLeagueAction {
   type: PlayersActionType.REMOVE_PLAYER_LEAGUE;
-  playerId: string;
-  leagueId: string;
+  playerId: PlayerId;
+  leagueId: PlayerId;
 }
 
 export const removePlayerLeagueAction = (
-  playerId: string,
-  leagueId: string
+  playerId: PlayerId,
+  leagueId: PlayerId
 ): RemovePlayerLeagueAction => ({
   type: PlayersActionType.REMOVE_PLAYER_LEAGUE,
   playerId,
@@ -82,10 +82,10 @@ export const removePlayerLeagueAction = (
 
 export interface DeletePlayerAction {
   type: PlayersActionType.DELETE_PLAYER
-  playerId: string;
+  playerId: PlayerId;
 }
 
-export const deletePlayerAction = (playerId: string): DeletePlayerAction => ({
+export const deletePlayerAction = (playerId: PlayerId): DeletePlayerAction => ({
   type: PlayersActionType.DELETE_PLAYER,
   playerId
 })

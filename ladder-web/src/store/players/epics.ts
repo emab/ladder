@@ -1,6 +1,5 @@
 import { combineEpics, Epic, ofType } from 'redux-observable';
 import { ignoreElements, map, mergeMap, switchMap } from 'rxjs/operators';
-import { UpdateType } from '../../types';
 import { Action } from '../types';
 import {
   addPlayerAction,
@@ -11,7 +10,6 @@ import {
   addPlayerRequest,
   deletePlayerRequest,
   getPlayersRequest,
-  updatePlayerLeaguesRequest,
 } from './api';
 
 export const loadPlayersEpic: Epic = (action$) =>
@@ -28,28 +26,6 @@ export const addPlayerEpic: Epic = (action$) =>
     map((result) => addPlayerAction(result.response))
   );
 
-export const updatePlayerLeaguesEpic: Epic = (action$) =>
-  action$.pipe(
-    ofType<
-      Action,
-      | PlayersActionType.ADD_PLAYER_LEAGUE
-      | PlayersActionType.REMOVE_PLAYER_LEAGUE
-    >(
-      PlayersActionType.ADD_PLAYER_LEAGUE,
-      PlayersActionType.REMOVE_PLAYER_LEAGUE
-    ),
-    mergeMap(({ playerId, leagueId, type }) =>
-      updatePlayerLeaguesRequest(
-        playerId,
-        leagueId,
-        type === PlayersActionType.ADD_PLAYER_LEAGUE
-          ? UpdateType.ADD
-          : UpdateType.REMOVE
-      )
-    ),
-    ignoreElements()
-  );
-
 export const deletePlayerEpic: Epic = (action$) =>
   action$.pipe(
     ofType<Action, PlayersActionType.DELETE_PLAYER>(
@@ -62,6 +38,5 @@ export const deletePlayerEpic: Epic = (action$) =>
 export const playersEpics = combineEpics(
   loadPlayersEpic,
   addPlayerEpic,
-  updatePlayerLeaguesEpic,
   deletePlayerEpic
 );

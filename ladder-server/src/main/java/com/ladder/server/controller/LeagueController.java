@@ -1,55 +1,75 @@
 package com.ladder.server.controller;
 
+import com.ladder.server.data.Challenge;
 import com.ladder.server.data.League;
-import com.ladder.server.data.LeagueRepository;
-import com.ladder.server.request.LeaguePlayerRequest;
-import com.ladder.server.request.LeagueResultRequest;
+import com.ladder.server.request.AddLeagueRequest;
+import com.ladder.server.request.ChallengeResultRequest;
+import com.ladder.server.request.CreateChallengeRequest;
+import com.ladder.server.request.UpdateLeagueNameRequest;
 import com.ladder.server.service.LeagueService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/league")
 public class LeagueController {
 
-  private final LeagueRepository leagueRepository;
   private final LeagueService leagueService;
 
-  public LeagueController(LeagueRepository leagueRepository, LeagueService leagueService) {
-    this.leagueRepository = leagueRepository;
+  public LeagueController(LeagueService leagueService) {
     this.leagueService = leagueService;
   }
 
   @GetMapping
   public List<League> getLeagues() {
-    return leagueRepository.findAll();
+    return leagueService.getLeagues();
   }
 
   @PostMapping
-  public League addLeague(String name) {
-    return leagueRepository.save(new League(name));
+  public League addLeague(@RequestBody AddLeagueRequest request) {
+    return leagueService.addLeague(request.getName());
   }
 
   @GetMapping("/{leagueId}")
-  public League getLeague(@PathVariable UUID leagueId) {
-    return leagueRepository.findById(leagueId).orElseThrow();
+  public League getLeague(@PathVariable Integer leagueId) {
+    return leagueService.getLeague(leagueId);
   }
 
-  @PostMapping("/{leagueId}/result")
-  public League addLeagueResult(
-      @PathVariable UUID leagueId, @RequestBody LeagueResultRequest request) {
-    return leagueService.handleLeagueResult(leagueId, request.getWinnerId(), request.getLoserId());
+  @PatchMapping("/{leagueId}")
+  public League updateLeagueName(
+      @PathVariable Integer leagueId, @RequestBody UpdateLeagueNameRequest request) {
+    return leagueService.updateLeagueName(leagueId, request.getName());
   }
 
-  @PostMapping("/{leagueId}/player")
-  public League addLeaguePlayer(@PathVariable UUID leagueId, @RequestBody LeaguePlayerRequest request) {
-    return leagueService.handlePlayerAdded(leagueId, request.getPlayerId());
+  @GetMapping("/{leagueId}/challenge")
+  public List<Challenge> getLeagueChallenges(@PathVariable Integer leagueId) {
+    return leagueService.getLeagueChallenges(leagueId);
   }
 
-  @DeleteMapping("/{leagueId}/player")
-  public League removeLeaguePlayer(@PathVariable UUID leagueId, @RequestBody LeaguePlayerRequest request) {
-    return leagueService.handlePlayerRemoved(leagueId, request.getPlayerId());
+  @PostMapping("/{leagueId}/challenge")
+  public League addLeagueChallenge(
+      @PathVariable Integer leagueId, @RequestBody CreateChallengeRequest request) {
+    return leagueService.addChallenge(
+        leagueId, request.getChallengerId(), request.getChallengedId());
+  }
+
+  @PatchMapping("/{leagueId}/challenge/{challengeId}")
+  public League handleLeagueChallengeResult(
+      @PathVariable Integer leagueId,
+      @PathVariable Integer challengeId,
+      @RequestBody ChallengeResultRequest request) {
+    return leagueService.handleChallengeResult(leagueId, challengeId, request.getWinnerId());
+  }
+
+  @PostMapping("/{leagueId}/player/{playerId}")
+  public League addLeaguePlayer(@PathVariable Integer leagueId, @PathVariable Integer playerId) {
+    return leagueService.handlePlayerAdded(leagueId, playerId);
+  }
+
+  @DeleteMapping("/{leagueId}/player/{playerId}")
+  public League removeLeaguePlayer(
+      @PathVariable Integer leagueId, @PathVariable Integer playerId) {
+    return leagueService.handlePlayerRemoved(leagueId, playerId);
   }
 }

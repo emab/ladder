@@ -1,5 +1,6 @@
+export type PlayerId = number;
+
 export interface Player {
-  id: string;
+  playerId: PlayerId;
   username: string;
-  leagues: Array<string>;
 }

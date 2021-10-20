@@ -15,7 +15,7 @@ export const leagueReducer = (
       return {
         ...state,
         availableLeagues: action.leagues.reduce(
-          (acc, league) => ({ ...acc, [league.id]: league }),
+          (acc, league) => ({ ...acc, [league.leagueId]: league }),
           {}
         ),
       };

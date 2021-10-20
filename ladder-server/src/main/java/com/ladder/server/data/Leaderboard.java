@@ -1,99 +1,34 @@
 package com.ladder.server.data;
 
-import io.swagger.models.auth.In;
+import javax.persistence.*;
+import java.util.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
+@Entity
 public class Leaderboard {
-  private List<LeaderboardEntry> leaderboard;
+    @Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    private Integer leaderboardId;
 
-  public Leaderboard() {
-    this.leaderboard = new ArrayList<>();
-  }
+    @ElementCollection
+    @MapKeyColumn(name = "playerId")
+    private Map<Integer, Integer> leaderboard;
 
-  public void removePlayer(Player player) {
-    LeaderboardEntry entryToRemove =
-        this.leaderboard.stream().filter(e -> e.getPlayer() == player).findFirst().orElseThrow();
-    Integer rankToRemove = entryToRemove.getRank();
-    List<LeaderboardEntry> updatedList =
-        this.leaderboard.stream().filter(e -> e.getPlayer() != player).collect(Collectors.toList());
-
-    updatedList.forEach(
-        entry -> {
-          Integer entryRank = entry.getRank();
-
-          if (entryRank == null || rankToRemove == null || entryRank < rankToRemove) {
-            return;
-          }
-          entry.setRank(entryRank - 1);
-        });
-
-    leaderboard = updatedList;
-  }
-
-  public void addPlayer(Player player) {
-    this.leaderboard.add(new LeaderboardEntry(player));
-  }
-
-  public LeaderboardEntry getEntry(Player player) {
-    return this.leaderboard.stream()
-        .filter(entry -> entry.getPlayer() == player)
-        .findFirst()
-        .orElseThrow();
-  }
-
-  public Integer getLowestRank() {
-    var lowestEntry =
-        this.leaderboard.stream()
-            .filter(leaderboardEntry -> leaderboardEntry.getRank() != null)
-            .max(LeaderboardEntry::compareTo)
-            .orElse(null);
-
-    if (lowestEntry == null) {
-      return 1;
+    public Leaderboard() {
+        leaderboard = new HashMap<>();
     }
-    return lowestEntry.getRank() + 1;
-  }
 
-  public void swapPlayerRanks(Player winner, Player loser) {
-      LeaderboardEntry winnerEntry = this.getEntry(winner);
-      LeaderboardEntry loserEntry = this.getEntry(loser);
+    public Integer getLeaderboardId() {
+        return leaderboardId;
+    }
 
-      Integer winnerRank = winnerEntry.getRank();
-      Integer loserRank = loserEntry.getRank();
+    public Map<Integer, Integer> getLeaderboard() {
+        return leaderboard;
+    }
 
-      if (loserRank == null && winnerRank == null) {
-          winnerEntry.setRank(this.getLowestRank());
-          loserEntry.setRank(this.getLowestRank());
-          return;
-      }
+    public Map<Integer, Integer> handleResult(Integer winnerId, Integer loserId) {
+        leaderboard.compute(winnerId, (uuid, score) -> score == null ? 10 : score + 10);
+        leaderboard.compute(loserId, (uuid, score) -> score == null ? 0 : score - 10);
 
-      if (loserRank == null) {
-          loserEntry.setRank(this.getLowestRank());
-          return;
-      }
-
-      if (winnerRank == null) {
-          insertEntry(winnerRank, winner);
-          return;
-      }
-
-      if (loserRank < winnerRank) {
-          winnerEntry.setRank(loserRank);
-          loserEntry.setRank(winnerRank);
-      }
-  }
-
-  private void insertEntry(Integer rank, Player player) {
-    this.leaderboard.forEach(
-        entry -> {
-          Integer entryRank = entry.getRank();
-          if (entryRank != null && entryRank >= rank) {
-            entry.setRank(entryRank - 1);
-          }
-        });
-    this.leaderboard.add(new LeaderboardEntry(rank, player));
-  }
+        return leaderboard;
+    }
 }

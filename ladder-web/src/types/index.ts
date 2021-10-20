@@ -1,3 +1,4 @@
 export * from './player';
 export * from './league';
-export * from './api';
+export * from './challenge';
+export * from './leaderboard';

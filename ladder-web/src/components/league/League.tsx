@@ -23,7 +23,7 @@ export function League() {
         <div className="ml-5">
           Select league: <SelectLeague />
         </div>
-        {selectedLeague && <ResultInput leagueId={selectedLeague?.id}/>}
+        {selectedLeague && <ResultInput leagueId={selectedLeague?.leagueId}/>}
       </div>
       {selectedLeague && (
         <Leaderboard leaderboard={selectedLeague.leaderboard} />

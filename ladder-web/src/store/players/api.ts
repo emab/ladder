@@ -1,24 +1,18 @@
 import { Observable } from 'rxjs';
 import { ajax, AjaxResponse } from 'rxjs/ajax';
-import { Player, UpdateType } from '../../types';
+import { endpoints } from '../../api/endpoints';
+import { Player, PlayerId } from '../../types';
 
 export const getPlayersRequest = (): Observable<Array<Player>> =>
-  ajax.getJSON('http://localhost:8080/player');
+  ajax.getJSON(endpoints.player.getPlayers);
 
 export const addPlayerRequest = (
   username: string
 ): Observable<AjaxResponse<Player>> =>
-  ajax.post('http://localhost:8080/player', { username });
+  ajax.post(endpoints.player.addPlayer, { username });
 
-export const updatePlayerLeaguesRequest = (
-  playerId: string,
-  leagueId: string,
-  updateType: UpdateType
-): Observable<AjaxResponse<Player>> =>
-  ajax.post(`http://localhost:8080/player/${playerId}/league`, {
-    leagueId,
-    updateType,
-  });
+export const deletePlayerRequest = (playerId: PlayerId) =>
+  ajax.delete(endpoints.player.deletePlayer(playerId));
 
-export const deletePlayerRequest = (playerId: string) =>
-  ajax.delete(`http://localhost:8080/player/${playerId}`);
+export const getPlayerChallenges = (playerId: PlayerId) =>
+  ajax.getJSON(endpoints.player.getPlayerChallenges(playerId));

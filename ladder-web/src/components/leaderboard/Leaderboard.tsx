@@ -1,8 +1,8 @@
 import React from 'react';
-import { LeaderboardEntry } from '../../types';
+import { LeaderboardId } from '../../types';
 
 interface ILeaderboardProps {
-  leaderboard: Map<String, LeaderboardEntry>;
+  leaderboard: Leaderboard;
 }
 
 const sortFn = (a: LeaderboardEntry, b: LeaderboardEntry): number => {
