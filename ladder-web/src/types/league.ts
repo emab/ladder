@@ -1,13 +1,19 @@
-import { Challenge } from './challenge';
-import { Leaderboard } from './leaderboard';
-import { Player } from './player';
+import { Player, PlayerId } from './player';
+import { ChallengeId } from './challenge';
 
-export type LeagueId = number;
+interface LeaderboardEntry {
+  playerId: PlayerId;
+  score: number;
+}
+
+export type Leaderboard = LeaderboardEntry[];
+
+export type LeagueId = string;
 
 export interface League {
   leagueId: LeagueId;
   name: string;
-  challenges: Array<Challenge>
-  players: Array<Player>
+  challenges: ChallengeId[];
+  players: Player[];
   leaderboard: Leaderboard;
 }

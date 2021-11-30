@@ -1,18 +1,21 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Leaderboard } from '../leaderboard/Leaderboard';
-import { ResultInput } from '../result-input/ResultInput';
-import { SelectLeague } from '../select-league/SelectLeague';
-import { fetchLeaguesAction } from '../../store/leagues';
-import { selectedLeagueSelector } from '../../store/leagues/selectors';
+import React from 'react';
+import { useSelector } from 'react-redux';
+import { match as IMatch } from 'react-router-dom';
+import { leagueByIdSelector } from '../../store/leagues';
+import { LeaderboardTable } from '../leaderboard-table/LeaderboardTable';
 
-export function League() {
-  const dispatch = useDispatch();
-  const selectedLeague = useSelector(selectedLeagueSelector);
+interface IEditPlayerMatch extends IMatch {
+  params: {
+    leagueId: string;
+  };
+}
 
-  useEffect(() => {
-    dispatch(fetchLeaguesAction())
-  }, [])
+interface LeagueProps {
+  match: IEditPlayerMatch;
+}
+
+export const League = ({ match }: LeagueProps) => {
+  const selectedLeague = useSelector(leagueByIdSelector(match.params.leagueId));
 
   return (
     <div>
@@ -20,14 +23,10 @@ export function League() {
         <div className="text-4xl font-bold mb-3">
           {selectedLeague?.name} League
         </div>
-        <div className="ml-5">
-          Select league: <SelectLeague />
-        </div>
-        {selectedLeague && <ResultInput leagueId={selectedLeague?.leagueId}/>}
       </div>
       {selectedLeague && (
-        <Leaderboard leaderboard={selectedLeague.leaderboard} />
+        <LeaderboardTable leaderboard={selectedLeague.leaderboard} />
       )}
     </div>
   );
-}
+};

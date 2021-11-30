@@ -19,8 +19,6 @@ export const leagueReducer = (
           {}
         ),
       };
-    case LeagueActionType.SET_ACTIVE_LEAGUE:
-      return { ...state, selectedLeague: action.leagueId };
     default:
       return state;
   }

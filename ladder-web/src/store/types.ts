@@ -1,9 +1,24 @@
-import { League, Player } from '../types';
 import { LeagueAction } from './leagues';
-import { PlayersAction } from './players';
+import { AuthenticationAction } from './authentication';
+import { AppAction } from './appActions';
+import { PlayerAction } from './player';
+import { League, LeagueId } from '../types';
 
-export interface PlayersState {
-  players: { [id: string]: Player };
+export type UserId = string;
+
+export interface User {
+  id: UserId;
+  name: string;
+}
+
+export interface AuthState {
+  isAuthenticated: boolean;
+  user: User;
+  token: string;
+}
+
+export interface PlayerState {
+  leagues: LeagueId[];
 }
 
 export interface LeagueState {
@@ -14,8 +29,13 @@ export interface LeagueState {
 }
 
 export interface State {
-  players: PlayersState;
+  authentication: AuthState;
+  player: PlayerState;
   league: LeagueState;
 }
 
-export type Action = PlayersAction | LeagueAction;
+export type Action =
+  | PlayerAction
+  | LeagueAction
+  | AuthenticationAction
+  | AppAction;
