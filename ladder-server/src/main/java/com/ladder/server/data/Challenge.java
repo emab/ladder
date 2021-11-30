@@ -1,67 +1,75 @@
 package com.ladder.server.data;
 
-import lombok.Getter;
+import org.bson.types.ObjectId;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import java.util.UUID;
 
 @Entity
 public class Challenge {
-    @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
-    @Getter
-    private Integer challengeId;
-    @OneToOne
-    private Player challenger;
-    @OneToOne
-    private Player challenged;
-    @OneToOne
-    private Player winner;
-    @OneToOne
-    private Player loser;
+  @Id private String id;
+  private String challengerId;
+  private String challengedId;
+  @OneToOne private ChallengeResult result;
 
-    private ChallengeState state;
+  private ChallengeState state;
 
-    public Challenge(Player challenger, Player challenged) {
-        this.state = ChallengeState.OPEN;
-        this.challenger = challenger;
-        this.challenged = challenged;
+  public Challenge() {
+    this.state = ChallengeState.OPEN;
+    this.result = new ChallengeResult();
+  }
+
+  public Challenge(String challengerId, String challengedId) {
+    this.challengerId = challengerId;
+    this.challengedId = challengedId;
+    this.state = ChallengeState.OPEN;
+    this.result = new ChallengeResult();
+    this.id = ObjectId.get().toString();
+  }
+
+  public ChallengeResult getResult() {
+    if (state == ChallengeState.CLOSED) {
+      return result;
     }
+    return null;
+  }
 
-    public Challenge() {
-        this.state = ChallengeState.OPEN;
-    }
+  public String getId() {
+    return id;
+  }
 
-    public Player getWinner() {
-        if (isDone()) {
-            return winner;
-        }
-        return null;
-    }
+  public String getChallengerId() {
+    return challengerId;
+  }
 
-    public Player getLoser() {
-        if (isDone()) {
-            return loser;
-        }
-        return null;
-    }
+  public String getChallengedId() {
+    return challengedId;
+  }
 
-    public Player getChallenger() {
-        return challenger;
-    }
+  public boolean isOpen() {
+    return this.state.equals(ChallengeState.OPEN);
+  }
 
-    public Player getChallenged() {
-        return challenged;
+  public void setResult(String winnerId, String loserId) {
+    System.out.println(winnerId + " " + loserId);
+    if (isOpen()) {
+      this.state = ChallengeState.CLOSED;
+      this.result.setWinner(winnerId);
+      this.result.setLoser(loserId);
+      this.result.setDraw(false);
     }
+  }
 
-    private boolean isDone() {
-        return this.state.equals(ChallengeState.CLOSED);
+  public void setDraw() {
+    if (isOpen()) {
+      this.state = ChallengeState.CLOSED;
+      this.result.setDraw(true);
     }
+  }
 
-    public Player setWinner(Player player) {
-        this.state = ChallengeState.CLOSED;
-        this.winner = player;
-        this.loser = this.challenger == winner ? this.challenged : this.challenger;
-        return this.winner;
-    }
+  public ChallengeState getState() {
+    return state;
+  }
 }

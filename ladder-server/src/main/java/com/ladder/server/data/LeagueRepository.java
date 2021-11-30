@@ -1,9 +1,11 @@
 package com.ladder.server.data;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.UUID;
+import java.util.List;
 
 @Repository
-public interface LeagueRepository extends JpaRepository<League, Integer> {}
+public interface LeagueRepository extends MongoRepository<League, String> {
+    List<League> findAllByPlayersContains(String player);
+}

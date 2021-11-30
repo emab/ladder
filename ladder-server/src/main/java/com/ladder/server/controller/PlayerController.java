@@ -1,42 +1,33 @@
 package com.ladder.server.controller;
 
-import com.ladder.server.data.Challenge;
-import com.ladder.server.data.Player;
-import com.ladder.server.request.AddPlayerRequest;
-import com.ladder.server.service.ChallengeService;
+import com.ladder.server.controller.request.AddPlayerLeagueResponse;
 import com.ladder.server.service.PlayerService;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/player")
 public class PlayerController {
-  private final PlayerService playerService;
-  private final ChallengeService challengeService;
+    private final PlayerService playerService;
 
-  public PlayerController(PlayerService playerService, ChallengeService challengeService) {
-    this.playerService = playerService;
-    this.challengeService = challengeService;
-  }
+    public PlayerController(PlayerService playerService) {
+        this.playerService = playerService;
+    }
 
-  @GetMapping
-  public List<Player> getPlayers() {
-    return playerService.getPlayers();
-  }
+    @GetMapping("/{playerId}/league")
+    public Set<String> getPlayerLeagues(@PathVariable String playerId) {
+        return playerService.getPlayerLeagues(playerId);
+    }
 
-  @PostMapping
-  public Player addPlayer(@RequestBody AddPlayerRequest request) {
-    return playerService.addPlayer(request.getUsername());
-  }
+    @PostMapping("/{playerId}/league")
+    public Set<String> addPlayerLeague(@PathVariable String playerId, @RequestBody AddPlayerLeagueResponse addPlayerLeagueResponse) {
+        return playerService.handlePlayerAdded(playerId, addPlayerLeagueResponse.getLeagueId());
+    }
 
-  @DeleteMapping("/{playerId}")
-  public Player deletePlayer(@PathVariable Integer playerId) {
-    return playerService.deletePlayer(playerId);
-  }
-
-  @GetMapping("/{playerId}/challenge")
-  public List<Challenge> getPlayerChallenges(@PathVariable Integer playerId) {
-    return challengeService.getPlayerChallenges(playerId);
-  }
+    @DeleteMapping("/{playerId}/league/{leagueId}")
+    public Set<String> removePlayerLeague(
+            @PathVariable String playerId, @PathVariable String leagueId) {
+        return playerService.handlePlayerRemoved(playerId, leagueId);
+    }
 }

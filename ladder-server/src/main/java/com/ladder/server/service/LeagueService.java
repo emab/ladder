@@ -1,100 +1,91 @@
 package com.ladder.server.service;
 
+import com.ladder.server.controller.response.ChallengeResponse;
+import com.ladder.server.controller.response.LeagueResponse;
 import com.ladder.server.data.*;
+import com.ladder.server.mappers.ChallengeMappers;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class LeagueService {
   private final LeagueRepository leagueRepository;
-  private final PlayerRepository playerRepository;
-  private final LeaderboardService leaderboardService;
+  private final ServiceUtils<League, LeagueRepository> serviceUtils;
 
-  public LeagueService(
-      LeagueRepository leagueRepository,
-      PlayerRepository playerRepository,
-      LeaderboardService leaderboardService) {
+  public LeagueService(LeagueRepository leagueRepository) {
     this.leagueRepository = leagueRepository;
-    this.playerRepository = playerRepository;
-    this.leaderboardService = leaderboardService;
-  }
-
-  private League findLeagueById(Integer leagueId) throws RuntimeException {
-    if (leagueId == null) {
-      // TODO better exception, handle in controller layer with nice response
-      throw new RuntimeException("leagueId cannot be null");
-    }
-    return leagueRepository
-        .findById(leagueId)
-        .orElseThrow(() -> new RuntimeException("league not found"));
-  }
-
-  private Player findPlayerById(Integer playerId) throws RuntimeException {
-    if (playerId == null) {
-      throw new RuntimeException("playerId cannot be null");
-    }
-    return playerRepository
-        .findById(playerId)
-        .orElseThrow(() -> new RuntimeException("player not found"));
+    this.serviceUtils = new ServiceUtils<>(leagueRepository);
   }
 
   public List<League> getLeagues() {
     return leagueRepository.findAll();
   }
 
-  public League getLeague(Integer leagueId) {
-    return findLeagueById(leagueId);
+  public LeagueResponse getLeague(String leagueId) {
+    var league = serviceUtils.findOrThrow(leagueId);
+    return LeagueResponse.builder().LeagueId(league.getId()).name(league.getName()).build();
   }
 
   public League addLeague(String name) {
     return leagueRepository.save(new League(name));
   }
 
-  public List<Challenge> getLeagueChallenges(Integer leagueId) {
-    return getLeague(leagueId).getChallenges();
+  public List<ChallengeResponse> getLeagueChallenges(String leagueId) {
+    var league = serviceUtils.findOrThrow(leagueId);
+
+    return ChallengeMappers.toChallengeResponse(league.getChallenges());
   }
 
-  public League updateLeagueName(Integer leagueId, String name) {
-    League league = findLeagueById(leagueId);
+  public LeagueResponse updateLeagueName(String leagueId, String name) {
+    var league = serviceUtils.findOrThrow(leagueId);
+
     league.updateLeagueName(name);
-
-    return leagueRepository.save(league);
+    var savedLeague = leagueRepository.save(league);
+    return LeagueResponse.builder()
+        .LeagueId(savedLeague.getId())
+        .name(savedLeague.getName())
+        .build();
   }
 
-  public League handlePlayerAdded(Integer leagueId, Integer playerId) {
-    League league = findLeagueById(leagueId);
-    Player player = findPlayerById(playerId);
-    league.addPlayer(player);
+  public Set<String> handlePlayerAdded(String leagueId, String playerId) {
+    var league = serviceUtils.findOrThrow(leagueId);
+    league.addPlayer(playerId);
 
-    return leagueRepository.save(league);
+    return leagueRepository.save(league).getPlayers();
   }
 
-  public League handlePlayerRemoved(Integer leagueId, Integer playerId) {
-    League league = findLeagueById(leagueId);
-    Player player = findPlayerById(playerId);
-    league.removePlayer(player);
+  public Set<String> handlePlayerRemoved(String leagueId, String playerId) {
+    var league = serviceUtils.findOrThrow(leagueId);
+    league.removePlayer(playerId);
 
-    return leagueRepository.save(league);
+    return leagueRepository.save(league).getPlayers();
   }
 
-  public League addChallenge(Integer leagueId, Integer challengerId, Integer challengedId) {
-    League league = findLeagueById(leagueId);
-    Player challenger = findPlayerById(challengerId);
-    Player challenged = findPlayerById(challengedId);
-    league.addChallenge(challenger, challenged);
+  public List<ChallengeResponse> addChallenge(
+      String leagueId, String challengerId, String challengedId) {
+    var league = serviceUtils.findOrThrow(leagueId);
+    league.addChallenge(challengerId, challengedId);
 
-    return leagueRepository.save(league);
+    var savedLeague = leagueRepository.save(league);
+
+    return ChallengeMappers.toChallengeResponse(savedLeague.getChallenges());
   }
 
-  public League handleChallengeResult(Integer leagueId, Integer challengeId, Integer winnerId) {
-    League league = findLeagueById(leagueId);
-    Player winner = findPlayerById(winnerId);
-    var challenge = league.handleChallengeResult(challengeId, winner);
-    leaderboardService.handleChallengeResult(
-        league.getLeaderboard().getLeaderboardId(),
-        challenge.getWinner().getPlayerId(),
-        challenge.getLoser().getPlayerId());
-    return leagueRepository.save(league);
+  public ChallengeResponse handleChallengeResult(
+      String leagueId, String challengeId, String winnerId, String loserId) {
+    var league = serviceUtils.findOrThrow(leagueId);
+    var challenge = league.handleChallengeResult(challengeId, winnerId, loserId);
+    System.out.println(challengeId);
+    System.out.println(challenge);
+    leagueRepository.save(league);
+
+    return ChallengeMappers.toChallengeResponse(challenge);
+  }
+
+  public Set<String> getLeaguePlayers(String leagueId) {
+    return serviceUtils.findOrThrow(leagueId).getPlayers();
   }
 }
