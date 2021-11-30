@@ -1,39 +1,37 @@
 package com.ladder.server.service;
 
-import com.ladder.server.data.Challenge;
-import com.ladder.server.data.Player;
-import com.ladder.server.data.PlayerRepository;
+import com.ladder.server.data.League;
+import com.ladder.server.data.LeagueRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class PlayerService {
-  private final PlayerRepository playerRepository;
-  private final ServiceUtils<Player, PlayerRepository> playerUtils;
-  private final ChallengeService challengeService;
+  public final LeagueService leagueService;
+  public final LeagueRepository leagueRepository;
 
-  public PlayerService(PlayerRepository playerRepository, ChallengeService challengeService) {
-    this.playerRepository = playerRepository;
-    this.playerUtils = new ServiceUtils<>(playerRepository);
-    this.challengeService = challengeService;
+  public PlayerService(LeagueService leagueService, LeagueRepository leagueRepository) {
+    this.leagueService = leagueService;
+    this.leagueRepository = leagueRepository;
   }
 
-  public List<Player> getPlayers() {
-      return playerRepository.findAll();
+  public Set<String> getPlayerLeagues(String playerId) {
+    return leagueRepository.findAllByPlayersContains(playerId).stream()
+        .map(League::getId)
+        .collect(Collectors.toSet());
   }
 
-  public Player getPlayer(Integer playerId) {
-      return playerUtils.findOrThrow(playerId);
+  public Set<String> handlePlayerAdded(String playerId, String leagueId) {
+    leagueService.handlePlayerAdded(leagueId, playerId);
+
+    return leagueRepository.findAllByPlayersContains(playerId).stream().map(League::getId).collect(Collectors.toSet());
   }
 
-  public Player addPlayer(String username) {
-      return playerRepository.save(new Player(username));
-  }
+  public Set<String> handlePlayerRemoved(String playerId, String leagueId) {
+    leagueService.handlePlayerRemoved(leagueId, playerId);
 
-  public Player deletePlayer(Integer playerId) {
-      var player = playerUtils.findOrThrow(playerId);
-      playerRepository.delete(player);
-      return player;
+    return leagueRepository.findAllByPlayersContains(playerId).stream().map(League::getId).collect(Collectors.toSet());
   }
 }
