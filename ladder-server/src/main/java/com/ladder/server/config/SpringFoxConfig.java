@@ -40,7 +40,7 @@ public class SpringFoxConfig {
             "Terms of service",
             new Contact("Eddy Brown", "http://scottlogic.com", "ebrown@scottlogic.com"),
             "MIT",
-            "https://www.mit.edu/~amini/LICENSE.md",
+            "https://github.com/emab/ladder/blob/main/LICENSE",
             Collections.emptyList());
   }
 
