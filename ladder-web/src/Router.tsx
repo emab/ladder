@@ -1,24 +1,20 @@
-import React, { ReactChild } from 'react';
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
-import { EditPlayer, League, PlayerList } from './components';
+import React from 'react';
+import { Route, Switch } from 'react-router-dom';
+import { Dashboard, League, Leagues, Profile } from './components';
 
-interface IRouterProps {
-  children: ReactChild;
-}
-
-export function Router({ children }: IRouterProps) {
+export function Router() {
   return (
-    <BrowserRouter>
-      {children}
-      <Switch>
-        <Route exact path="/">
-          <League />
-        </Route>
-        <Route path="/players/:playerId" component={EditPlayer} />
-        <Route path="/players">
-          <PlayerList />
-        </Route>
-      </Switch>
-    </BrowserRouter>
+    <Switch>
+      <Route exact path="/">
+        <Dashboard />
+      </Route>
+      <Route exact path="/league">
+        <Leagues />
+      </Route>
+      <Route exact path="/profile">
+        <Profile />
+      </Route>
+      <Route path="/league/:leagueId" component={League} />
+    </Switch>
   );
 }

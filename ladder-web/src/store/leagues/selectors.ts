@@ -1,5 +1,6 @@
 import { createSelector } from 'reselect';
 import { LeagueState, State } from '../types';
+import { LeagueId } from '../../types';
 
 const leagueSelector = (state: State): LeagueState => state.league;
 
@@ -15,6 +16,12 @@ export const selectedLeagueSelector = createSelector(
       ? leagueState.availableLeagues[selectedLeagueId]
       : undefined
 );
+
+export const leagueByIdSelector = (leagueId: LeagueId) =>
+  createSelector(
+    leagueSelector,
+    (leagueState) => leagueState.availableLeagues[leagueId]
+  );
 
 export const availableLeaguesSelector = createSelector(
   leagueSelector,

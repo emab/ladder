@@ -1,33 +1,19 @@
 import { combineEpics, Epic, ofType } from 'redux-observable';
-import { filter, switchMap, take } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
+import { LeagueActionType, setAvailableLeaguesAction } from './actions';
+import { AppActionType } from '../appActions';
 import { Action } from '../types';
-import {
-  LeagueActionType,
-  setActiveLeagueAction,
-  setAvailableLeaguesAction,
-} from './actions';
+import { authenticatedAjax } from '../../util/authenticatedAjax';
 import { getLeaguesRequest } from './api';
 
-export const loadLeagueEpic: Epic = (action$) =>
+export const getLeaguesEpic: Epic = (action$, state$) =>
   action$.pipe(
-    ofType(LeagueActionType.FETCH_LEAGUES),
-    switchMap(() => getLeaguesRequest()),
+    ofType<
+      Action,
+      LeagueActionType.FETCH_LEAGUES | AppActionType.FETCH_DATA_START
+    >(LeagueActionType.FETCH_LEAGUES, AppActionType.FETCH_DATA_START),
+    switchMap(() => state$.pipe(authenticatedAjax(getLeaguesRequest))),
     map((leagues) => setAvailableLeaguesAction(leagues))
   );
 
-export const setInitialLeague: Epic = (action$) =>
-  action$.pipe(
-    ofType<Action, LeagueActionType.SET_AVAILABLE_LEAGUES>(
-      LeagueActionType.SET_AVAILABLE_LEAGUES
-    ),
-    map(({ leagues }) => leagues),
-    filter((leagues) => !!leagues.length),
-    take(1),
-    map((leagues) => setActiveLeagueAction(leagues[0].leagueId))
-  );
-
-export const leagueEpics = combineEpics(
-  loadLeagueEpic,
-  setInitialLeague,
-);
+export const leagueEpics = combineEpics(getLeaguesEpic);
